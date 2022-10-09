@@ -1,5 +1,7 @@
 import os
 import subprocess
+#格式美化
+from prettytable import PrettyTable
 
 """
 下面是多线程需要执行的映射程序:adb_overtcp
@@ -7,6 +9,7 @@ import subprocess
 使用后台映射不会影响STF端的远程控制
 注意这里只输出错误日志到log里
 """
+
 def adb_overtcp(port,deviceid): 
     subprocess.call(f"nohup adbkit usb-device-to-tcp -p {port} {deviceid} >/dev/null 2>log &", shell=True)
 def check_devices():
@@ -33,12 +36,29 @@ def check_devices():
 if __name__ == '__main__':
     devices=check_devices()
     print(f"温馨提示：\n正在初始化，当前adb设备数量为{len(devices)}个，映射端口分别为600-{600+len(devices)}")
+    print("初始化读取设备数据库。。。。")
+    import sqlite3
     import time
-    port=600
-    time.sleep(5)
-    print("映射的端口      映射的设备id")
-    for i in devices:
-        print(f"{port}      {i}")
-        adb_overtcp(port,i)
-        port=port+1
+    try:
+        conn = sqlite3.connect('device_name.db')
+        cursor = conn.cursor()
+        devices=check_devices()
+        cursor = conn.execute("select port,device_id,kinkname from devices")
+    except sqlite3.OperationalError:
+        sql = '''CREATE TABLE IF NOT EXISTS devices (
+                port int unique,
+                device_id VARCHAR primary key,
+                kinkname VARCHAR)'''
+        cursor.execute(sql)
+    except Exception as e:
+        print("出现其他错误了：",e)
+    say=PrettyTable(['映射端口','设备id','设备标识'])
+    sql='SELECT * FROM devices'
+    sql=cursor.execute(sql)
+    sql = sql.fetchall()
+    time.sleep(3)
+    for s in sql:
+        say.add_row([s[0],s[1],s[2]])
+        adb_overtcp(s[0],s[1])
+    print(say)
     print("端口映射执行完毕，请在Windows客户端内使用一键链接！")
