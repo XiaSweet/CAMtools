@@ -1,26 +1,17 @@
 import sqlite3
-import adb_server as adb
+import adblib as adb
 import time
 #格式美化
 from prettytable import PrettyTable
-
+from sqllib import main as sqls
 print("正在初始化设备数据库。。。。")
-try:
-    conn = sqlite3.connect('device_name.db')
-    cursor = conn.cursor()
-    devices=adb.check_devices()
-    cursor = conn.execute("select port,device_id,kinkname from devices")
-except sqlite3.OperationalError:
-    sql = '''CREATE TABLE IF NOT EXISTS devices (
-            port int unique,
-            device_id VARCHAR primary key,
-            kinkname VARCHAR)'''
-    cursor.execute(sql)
-except Exception as e:
-    print("出现其他错误了：",e)
+sqls.setup()
 say=PrettyTable(['设备序号','映射端口','设备标识','设备id'])
 temp=1
 port=600
+conn = sqlite3.connect('device_name.db')
+cursor = conn.cursor()
+devices=adb.devices()
 for i in devices: #初始化设备内容
     try:
         sql=f"SELECT port FROM devices WHERE device_id='{i}'"
@@ -51,16 +42,20 @@ for i in devices: #初始化设备内容
                 port=port+1
                 time.sleep(0.5)
     conn.commit()
+devices=sqls.count()
+sql=f"SELECT * FROM devices"
+sql=cursor.execute(sql)
+values = sql.fetchall()
+temp=1
+for i in values:  #i[0]=port,i[1]=device_id,i[2]=name
     try:
-        sql=f"SELECT kinkname FROM devices WHERE device_id='{i}'"
-        sql=cursor.execute(sql)
-        values = sql.fetchall()
-        if values[0][0]==None:
-            say.add_row([[temp],port,'无',i])
+        #sql=f"SELECT kinkname FROM devices WHERE device_id='{i}'"
+        if i[2]==None:
+            say.add_row([[temp],i[0],i[1],'无'])
         else:
-            say.add_row([[temp],port,values[0][0],i])
+            say.add_row([[temp],i[0],i[1],i[2]])
     except IndexError:
-        say.add_row([[temp],port,'无',i])
+        say.add_row([[temp],i[0],i[1],'无'])
     finally:
         temp=temp+1
 print("当前登记的设备信息：")
@@ -68,7 +63,7 @@ print(say)
 while True:
     try: # 先开始单独写入 '''insert语句 把一个新的行插入到表中 into'''
         device_id = input("输入你需要标记的设备序号：")
-        device_id=devices[int(device_id)-1]
+        device_id=values[int(device_id)-1][1]
         kinkname = input('输入设备的备注:') 
         sql = f' update devices set kinkname = "{kinkname}" where device_id= "{device_id}" '
         cursor.execute(sql)

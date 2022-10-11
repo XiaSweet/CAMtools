@@ -7,6 +7,8 @@
 	<link rel="shortcut icon" href="../static/pic/icons.png">
 	    <!-- Bootstrap core CSS -->
 	<link href="{{ url_for('static', filename = 'css/bootstrap.min.css') }}" rel="stylesheet">
+		<!-- toastr 核心 CSS -->
+	<link href="{{ url_for('static', filename = 'css/toastr.min.css') }}" rel="stylesheet">
 	<style>
 	  .bd-placeholder-img {
 		font-size: 1.125rem;
@@ -36,66 +38,100 @@
     <div class="collapse navbar-collapse" id="navbarCollapse">
       <ul class="navbar-nav me-auto mb-2 mb-md-0">
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">Home</a>
+          <a class="nav-link active" aria-current="page" href="#">Today</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Link</a>
+          <a class="nav-link" href="#">控制台</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link disabled">Disabled</a>
+          <a class="nav-link disabled">群控模式（待开发）</a>
         </li>
       </ul>
-      <form class="d-flex">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-        <button class="btn btn-outline-success" type="submit">搜</button>
-      </form>
+      <div class="d-flex" title="查看当前链接的设备">
+		<embed src="../static/pic/smartphone.svg" type="image/svg+xml" />
+		<a>&nbsp; </a>
+		<a style='color:#ffffff' id="con_devices_len">0</a>
+      </div>
     </div>
   </div>
 </nav>
 <main class="container">
   <div class="bg-light p-5 rounded">
-    <h1>XiaSweet ADB Server</h1>
-	<h5 class="lead" id="timenow">正在从服务器获取当前时间.......</h4>
-	<h5 class="lead" id="connect_devices">等待系统检测链接设备。。。。。</h4> 
-    <a class="btn btn-lg btn-primary" href="../components/navbar/" role="button">View navbar docs &raquo;</a>
+    <h1>Today</h1>
+	<h5 class="lead" id="timenow">正在从服务器获取当前时间.......</h5>
+	<h5 class="lead" id="connect_devices">等待系统检测链接设备。。。。。</h5> 
+    <!--  <a class="btn btn-lg btn-primary" href="../components/navbar/" role="button">测试按钮 &raquo;</a>  -->
+	<div class="table-responsive">
+		<table class="table table-hover table-responsive">
+			<thead>
+				<th><div class="form-check">
+				  <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+				  <label class="form-check-label" for="flexCheckDefault">选择</label>
+					</div></th>
+					<th>设备id</th>
+					<th>映射端口</th>
+					<th>设备标识</th>
+					<th>本地ip地址</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			{# 循环遍历运行设备信息并打印文档 #}
+			<tbody>
+			{% for d in device %}
+			<tr>
+				<td>
+				<div class="form-check">
+				  <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+				  <label class="form-check-label" for="flexCheckDefault"></label>
+				</div></td>
+				<td id="device_id{{loop.index}}">{{ d.device_id }}</td>
+				<td id="port{{loop.index}}">{{ d.port }}</td>
+				<td>{{ d.setname }}</td>
+				<td></td>
+				<td>
+				<button onclick="adb_url({{ d.port }})" type="button" class="btn btn-sm btn-primary">一键链接</button>
+				<button onclick="adb_url({{ d.port }})" type="button" class="btn btn-sm btn-primary">状态预览</button>
+				</td>
+			</tr>
+			{% endfor %} 
+			</tbody>
+		</table>
+	</div>
   </div>
 </main>
-<footer>
-    <p>&copy; 2022 - Today XiaSweet Lab, Inc.</p>
+<footer style="text-align: center; flex-grow: 1;display: flex;align-items: flex-end;justify-content: center">
+    <!--   <p>&copy; 2022 - Today XiaSweet Lab, Inc.</p> -->
 </footer>
 <script src="../static/js/bootstrap.bundle.min.js"></script>
 <script src="../static/jquery-3.5.1.min.js"></script>
+<script src="../static/js/toastr.js"></script>
+<script src="../static/js/doka_index.js"></script>
 <script type="text/javascript">
-	function gettime() {
-		$.ajax({
-			url: '/gettime', //从gettime这个视图函数获取数据，一会编写
-			type: 'post' , //采用get方法
-			timeout: 10000, //超时时间设置为10秒
-			success: function(t) { //成功之后的结果，这里的t是从'/gettime'视图函数获得的返回值，如果返回值有多个，可以用json
-				$('#timenow').html("当前时间为" + t) //用“当前时间为：t”代替timenow也就是上面的“当前时间?"
-			}
-		});
+	$.get("https://v1.hitokoto.cn/?c=i",function(data,status){
+		if (status == 'success'){
+			toastr.info(data.hitokoto,'每日一言')
+		}
+	});
+	toastr.warning('XiaSweet ADB Server默认您的网络环境安全可控,请勿部署至生产环境！','安全提示：');
+	function adb_url(port){
+    var url= window.location.host;
+	url=url.replace(/5000/,port),
+	copyToClip(url)
+	toastr.success(url,"使用复制的网址链接ADB");
+	}; 
+	function copyToClip(content, message) {
+		var aux = document.createElement("input"); 
+		aux.setAttribute("value", content); 
+		document.body.appendChild(aux); 
+		aux.select();
+		document.execCommand("copy"); 
+		document.body.removeChild(aux);
+		if (message == null) {
+			console.info("复制到剪切板的内容:"+content);
+		} else{
+			console.warn(message);
+		}
 	}
-	setInterval(gettime, 1000) 
-	function connect_devices() {
-		$.ajax({
-			url: '/devices',
-			//从gettime这个视图函数获取数据，一会编写
-			type: 'post',
-			//采用get方法
-			timeout: 10000,
-			//超时时间设置为10秒
-			success: function(t) { //成功之后的结果，这里的t是从'/gettime'视图函数获得的返回值，如果返回值有多个，可以用json
-				if (t === "0") {
-					$('#connect_devices').html("ADB设备还没有链接，客官请先喝口茶(＞﹏＜)"),
-					alert("请注意adb端口链接！")
-				} else {
-					$('#connect_devices').html("温馨提示：当前链接的设备是" + t + "台") //用“当前时间为：t”代替timenow也就是上面的“当前时间?"
-				}
-			}
-		});
-	}
-	setInterval(connect_devices, 1500) //每1.5秒刷新一次
 </script>
 </body>
 </html>

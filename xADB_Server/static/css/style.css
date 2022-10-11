@@ -1,7 +1,7 @@
 /* 这是匹配横屏的状态，横屏时的css代码 */
 @media all and (orientation :landscape) {
     body {
-        background: url('../backguard/koli.jpg') no-repeat center fixed;
+        background:linear-gradient(rgba(255,255,255,0.5),rgba(255,255,255, 0.5)),url('../backguard/koli.jpg') no-repeat center fixed;
         background-size: cover;
 		min-height: 75rem;
 		padding-top: 4.5rem;
@@ -15,17 +15,12 @@
         bottom: 100px;  
         width: 100%;  
     }
-	touming{
-	   filter:alpha(opacity:30);
-	   opacity:0.3;
-	   color:red;}
-	}
 }
 
 /* 这是匹配竖屏的状态，竖屏时的css代码 */
 @media all and (orientation :portrait) {
 	body {
-		background: url('../backguard/koli-portrait.jpg') no-repeat center fixed;
+		background: linear-gradient(rgba(255,255,255,0.5),rgba(255,255,255, 0.5)),url('../backguard/koli-portrait.jpg') no-repeat center fixed;
 		background-repeat: no-repeat;
 		background-size: cover;
 		min-height: 75rem;
