@@ -10,6 +10,18 @@ class xtools: #Xiasweet ADB tools
             return ip[0]
         except IndexError:
             return "False"
+    def getscreen(deviceID):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmpdir:
+            print('创建的临时目录：', tmpdir)
+            execout(deviceID,f'screencap -p > screen.png ',cddir=tmpdir)
+            #print(subprocess.call(f"cd {tmpdir}&& c: && dir", shell=True))
+            import base64
+            with open(f"{tmpdir}\screen.png","rb") as f:
+                # b64encode是编码，b64decode是解码
+                base64_data = base64.b64encode(f.read()).decode('ascii')
+                # base64.b64decode(base64data)
+                return base64_data
 
 def overtcp(port,deviceid): #映射TCP运行时
     subprocess.call(f"nohup adbkit usb-device-to-tcp -p {port} {deviceid} >/dev/null 2>log &", shell=True)
@@ -30,10 +42,24 @@ def devices():
                 adb_list.append(str(adb))
         #print('adb设备数量={}，adb_list={}'.format(len(adb_list), adb_list))
         return adb_list
-def shell(devices,shell):
+def shell(devices,shell,cddir='0'):
     '''
     操作指定设备执行指令,需要设备id与执行指令
     :return: 设备 执行的指令
     '''
-    ret =subprocess.getoutput(f'adb -s {devices} shell {shell}')
+    if cddir=='0':
+        ret =subprocess.getoutput(f'adb -s {devices} shell {shell}')
+    else:
+        ret =subprocess.getoutput(f'cd {cddir} && c: && adb -s {devices} shell {shell}')
     return ret
+def execout(devices,shell,cddir='0'):
+    '''
+    操作指定设备执行指令,需要设备id与执行指令
+    :return: 设备 执行的指令
+    '''
+    if cddir=='0':
+        ret =subprocess.getoutput(f'adb -s {devices} exec-out {shell}')
+    else:
+        ret =subprocess.getoutput(f'cd {cddir} && c: && adb -s {devices} exec-out {shell}')
+    return ret
+

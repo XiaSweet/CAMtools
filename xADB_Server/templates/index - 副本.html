@@ -5,16 +5,10 @@
 	<title>XiaSweet ADBSev</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> 
 	<link rel="shortcut icon" href="../static/pic/icons.png">
-	    <!-- Bootstrap 加载CSS -->
+	    <!-- Bootstrap core CSS -->
 	<link href="{{ url_for('static', filename = 'css/bootstrap.min.css') }}" rel="stylesheet">
-	<link href="{{ url_for('static', filename = 'css/modals.css') }}" rel="stylesheet">
 		<!-- toastr 核心 CSS -->
 	<link href="{{ url_for('static', filename = 'css/toastr.min.css') }}" rel="stylesheet">
-		<!-- 公用JS数据库，页面自建函数在下面 -->
-	<script src="../static/js/jquery-3.5.1.min.js"></script>
-	<script src="../static/js/bootstrap.min.js"></script>
-	<script src="../static/js/toastr.js"></script>
-	<script src="../static/js/doka_index.js"></script>
 	<style>
 	  .bd-placeholder-img {
 		font-size: 1.125rem;
@@ -63,12 +57,8 @@
 <body>
 <main class="container">
   <div class="bg-light p-5 rounded">
-    <div class="alert alert-warning alert-dismissible">
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    <strong>安全提示:</strong>&nbsp;&nbsp;&nbsp;XiaSweet ADBServer 默认您的环境是安全可靠的,请不要面向外网开放5000服务端口(ρ_・).。
-  </div>
     <h1>Today</h1>
-	<!--<h5 class="lead" id="timenow">正在从服务器获取当前时间.......</h5>
+	<h5 class="lead" id="timenow">正在从服务器获取当前时间.......</h5>
 	<h5 class="lead" id="connect_devices">等待系统检测链接设备。。。。。</h5> 
     <!--  <a class="btn btn-lg btn-primary" href="../components/navbar/" role="button">测试按钮 &raquo;</a>  -->
 	<div class="table-responsive text-center">
@@ -97,14 +87,11 @@
 				<td id="device_id{{loop.index}}">{{ d.device_id }}</td>
 				<td id="port{{loop.index}}">{{ d.port }}</td>
 				<td>{{ d.setname }}</td>
-				<td id="localip{{loop.index}}">读取中，请等候</td>
-				<script>
-				get_localip("{{ d.device_id }}","{{'localip'~loop.index}}");
-				</script>
-				<td><div class="btn-group">
-					<button onclick="adb_url({{ d.port }})" type="button" class="btn btn-sm btn-primary">远程链接</button>
-					<button data-deviceis="{{ d.device_id }}" data-bs-toggle="modal" data-bs-target="#device_screen" type="button" class="btn btn-sm btn-primary">状态预览</button>
-				</div></td>
+				<td>读取中，请等候</td>
+				<td>
+				<button onclick="adb_url({{ d.port }})" type="button" class="btn btn-sm btn-primary">远程链接</button>
+				<button onclick="adb_url({{ d.port }})" type="button" class="btn btn-sm btn-primary">状态预览</button>
+				</td>
 			</tr>
 			{% endfor %} 
 			</tbody>
@@ -112,66 +99,38 @@
 	</div>
   </div>
 
-
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal">
-  打开模态框
+<h2>创建模态框（Modal）</h2>
+<!-- 按钮触发模态框 -->
+<button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+	开始演示模态框
 </button>
-
-<!-- 屏幕列表显示 -->
-<div class="modal fade" id="device_screen">
-	<style>
-	   .img {
-		width: 100%;
-		height: 100%;
-		object-fit: contain;
-	  }
-	</style>
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-      <!-- 模态框头部 -->
-      <div class="modal-header">
-        <h4 class="modal-title">状态浏览</h4>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <!-- 模态框内容 -->
-      <div class="modal-body" id="now_screen">
-		<img src="" id="image" class="img" onerror="this.style.display='none'">
-        <a id="screen_load">正在加载中，请稍候</a>
-      </div>
-      <!-- 模态框底部 -->
-      <div class="modal-footer">
-	  <button onclick="get_screen" type="button" class="btn btn-primary">刷新状态</button>
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">关闭</button>
-      </div>
-    </div>
-  </div>
-</div> 
- 
-<!-- 模态框 -->
-<div class="modal fade" id="myModal">
-  <div class="modal-dialog">
-    <div class="modal-content">
-
-      <!-- 模态框头部 -->
-      <div class="modal-header">
-        <h4 class="modal-title">模态框标题</h4>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
- 
-      <!-- 模态框内容 -->
-      <div class="modal-body">
-        模态框内容..
-
-      </div>
- 
-      <!-- 模态框底部 -->
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">关闭</button>
-      </div>
- 
-    </div>
-  </div>
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+					&times;
+				</button>
+				<h4 class="modal-title" id="myModalLabel">
+					模态框（Modal）标题
+				</h4>
+			</div>
+			<div class="modal-body">
+				在这里添加一些文本
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">关闭
+				</button>
+				<button type="button" class="btn btn-primary">
+					提交更改
+				</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
 </div>
+
+
 
 
 
@@ -179,6 +138,10 @@
 <footer style="text-align: center; flex-grow: 1;display: flex;align-items: flex-end;justify-content: center">
     <!--   <p>&copy; 2022 - Today XiaSweet Lab, Inc.</p> -->
 </footer>
+<script src="../static/js/bootstrap.min.js"></script>
+<script src="../static/jquery-3.5.1.min.js"></script>
+<script src="../static/js/toastr.js"></script>
+<script src="../static/js/doka_index.js"></script>
 <script type="text/javascript">
 	$.get("https://v1.hitokoto.cn/?c=i",function(data,status){
 		if (status == 'success'){
@@ -204,34 +167,7 @@
 		} else{
 			console.warn(message);
 		}
-	};
-	$('#device_screen').on('show.bs.modal',function (event) {
-	  var button = $(event.relatedTarget); // 打开模态框的那个button
-	  var deviceis = button.data('deviceis');
-	  var modal = $(this);
-	  toastr.info("在读"+deviceis+"的屏幕信息","加载中");
-	  $('#screen_load').html('正在加载中，请稍候');
-	  modal.find('.modal-body #image').attr("style", "display: none;");
-	  screen=$.ajax({
-		url: '/devices/'+deviceis+'/screen',
-		cache: false,
-		type: 'get',
-		//采用get方法
-		timeout: 10000,
-		//超时时间设置为10秒
-		success: function(t) { //成功之后的结果
-			console.log(deviceis+'：屏幕信息获取成功')
-			screen=t
-		}});
-	  $.when(screen).done(function () { //myajax请求完毕时执行
-			$('#screen_load').html('');  //修改当前屏幕内容
-			modal.find('.modal-body #image').attr("style", "display: block;");
-			modal.find('.modal-body #image').attr("src", "data:image/png;base64,"+screen);//要执行的操作
-        })
-		});
-	  //modal.find('.modal-title').text('New message to ' + deviceis)
-	 // modal.find('.modal-body').img('')
+	}
 </script>
-
 </body>
 </html>

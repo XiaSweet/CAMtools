@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for,render_template
+from flask import Flask, redirect, url_for,render_template,make_response
 from flask_apscheduler import APScheduler
 import adblib as adb
 import time
@@ -7,14 +7,27 @@ app = Flask(__name__)
 def index(devices_info=[]):
    return render_template('index.html',device=device_db)
    
-@app.route('/gettime',methods=['POST'])
+@app.route('/gettime/',methods=['POST'])
 def gettime():
     return time.ctime()
     
-@app.route('/devices',methods=['POST'])
+@app.route('/devices/',methods=['get','POST'])
 def connect_devices():
     return str(len(adb.devices()))
 
+#定义设备参数类id
+@app.route("/devices/<deviceID>/screen/")
+def get_screen(deviceID):
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmpdir:
+        print('创建的临时目录：', tmpdir)
+        temp=adb.xtools.getscreen(deviceID)
+        return str(temp)
+        #return render_template('screen.html',scr=temp)
+@app.route("/devices/<deviceID>/localip/",methods=['get','POST'])
+def get_localip(deviceID):
+    return adb.xtools.localip(deviceID)
+        
 def tishi():
     global devices
     devices=adb.devices()
