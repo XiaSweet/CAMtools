@@ -27,7 +27,7 @@ function connect_devices() {
 		}
 	});
 }
-setInterval(connect_devices, 1500) //每1.5秒刷新一次
+setInterval(connect_devices, 2985) //每3秒刷新一次
 function exist(id){
 	var s=document.getElementById(id);
 	if(s){
@@ -47,7 +47,7 @@ function get_localip(deviceid,ysid) {
 		//超时时间设置为10秒
 		success: function(t) { //成功之后的结果，这里的t是从'/gettime'视图函数获得的返回值，如果返回值有多个，可以用json
 			if (t === "False") {
-				$('#'+ysid).html("IP似乎没有链接"),
+				$('#'+ysid).html("咩有联网"),
 				console.info(ysid+"：IP似乎没有链接")
 			} else {
 				$('#'+ysid).html(t),

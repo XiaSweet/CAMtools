@@ -96,7 +96,7 @@
 				</div></td>
 				<td id="device_id{{loop.index}}">{{ d.device_id }}</td>
 				<td id="port{{loop.index}}">{{ d.port }}</td>
-				<td>{{ d.setname }}</td>
+				<td id="setname{{loop.index}}">{{ d.setname }}</td>
 				<td id="localip{{loop.index}}">读取中，请等候</td>
 				<script>
 				get_localip("{{ d.device_id }}","{{'localip'~loop.index}}");
@@ -163,7 +163,6 @@
         模态框内容..
 
       </div>
- 
       <!-- 模态框底部 -->
       <div class="modal-footer">
         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">关闭</button>
